@@ -34,6 +34,10 @@
 
 *.sln
 
+
+
+.vs/
+Custom_vector.vcxproj
 *.vcxproj	
 *.vcxproj.filters
 *.vcxproj.user
