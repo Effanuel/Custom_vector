@@ -31,3 +31,9 @@
 *.out
 *.app
 /.vs/Custom_vector/v15
+
+*.sln
+
+*.vcxproj	
+*.vcxproj.filters
+*.vcxproj.user
