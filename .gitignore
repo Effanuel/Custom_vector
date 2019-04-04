@@ -34,3 +34,6 @@
 
 *.vcxproj
 *.vcxproj.filters
+
+pch.cpp
+pch.h
