@@ -118,8 +118,4 @@ Complex operator-(Complex a) const {
 	Complex temp{ -a.real(), -a.imag() };
 	return temp;
 }
-``
-
-
-
-
+```
