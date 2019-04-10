@@ -66,8 +66,7 @@ std::istream& operator>>(std::istream& in, Complex &a) {
 Complex(const Complex& complex) : re{ complex.re }, im{complex.im} {
 	std::cout << "copy" << std::endl;
 }
-```
-```C++
+
 int main()
 {
 	Complex a{ 1, 1 }, b{ 2, 2 };
@@ -75,24 +74,28 @@ int main()
 	std::cout << a << std::endl;
 }
 ```
+---
+* CONSOLE OUTPUT:
 ```C++
 Complex& operator+=(Complex c) { re += c.re; im += c.im; return *this; }
 ```
-* CONSOLE OUTPUT:
+
 ```
 copy
 3 + 3i
 ```
+---
+* CONSOLE OUTPUT:
 ```C++
 Complex operator+=(Complex c) { re += c.re; im += c.im; return *this; }
 ```
-* CONSOLE OUTPUT:
+
 ```
 copy
 copy
 3 + 3i
 ```
-
+---
 ## 4. Uzd: **a \*= b**
 
 ```C++
