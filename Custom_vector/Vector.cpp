@@ -24,3 +24,24 @@ Vector& Vector::operator=(const Vector& v) {
 		return *this;
 	}
 }
+
+Vector& Vector::operator=(Vector&& v) {
+	if (&v == this) return *this;
+	delete[] elem;
+	elem = v.elem;
+	sz = v.sz;
+	v.elem = nullptr;
+	v.sz = 0;
+	return *this;
+}
+
+Vector operator+(const Vector& a, const Vector& b) {
+	if (a.size() != b.size())
+		throw std::runtime_error("Vector dydziu neatitikimas");
+	auto size = a.size();
+	Vector c(size);
+	for (auto i = 0; i != a.size(); ++i)
+		c[i] = a[i] + b[i];
+	return c;
+
+}
