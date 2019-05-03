@@ -1,5 +1,30 @@
 #include "Vector.h"
 
+template<class T>
+void swap(T& a, T& b) {
+	T temp{ std::move(a) };
+	a = std::move(b);
+	b = std::move(temp);
+}
+
+Vector::Vector(const Vector& v) : elem{ new double[v.sz] }, sz{ v.sz }	{
+	for (int i = 0; i != sz; ++i) elem[i] = v.elem[i];
+}
+
+Vector::Vector(Vector&& v) : sz{ v.sz }, elem{ v.elem }	{
+	v.elem = nullptr;
+	v.sz = 0;
+}
+
+Vector::Vector(std::initializer_list<double> il)
+	: sz{ static_cast<int>(il.size()) },
+	elem{ new double[il.size()] }	{
+	std::copy(il.begin(), il.end(), elem);
+}
+
+Vector::~Vector() { delete[] elem; }
+
+
 Vector::Vector(int s) : sz{ s }, elem{ new double[sz] } {}
 
 Vector::Vector(int s, double val) : sz{ s }, elem{ new double[sz] } {
@@ -18,9 +43,7 @@ void Vector::setElem(int idx, double val) {
 //}
 
 Vector& Vector::operator=(const Vector& v) {
-
 	if (&v == this) return *this;
-
 	double* p = new double[v.sz];
 	for (int i = 0; i != v.sz; ++i) {
 		p[i] = v.elem[i];
@@ -52,6 +75,17 @@ Vector operator+(const Vector& a, const Vector& b) {
 
 }
 
+Vector operator-(const Vector& a, const Vector& b) {
+	if (a.size() != b.size())
+		throw std::runtime_error("Vector dydziu neatitikimas");
+	auto size = a.size();
+	Vector c(size);
+	for (auto i = 0; i != a.size(); ++i)
+		c[i] = a[i] - b[i];
+	return c;
+
+}
+
 bool Vector::operator==(const Vector& v) { // added
 	if (sz == v.size()) {
 		for (int i = 0; i != sz; ++i) {
@@ -63,6 +97,32 @@ bool Vector::operator==(const Vector& v) { // added
 }
 bool Vector::operator!=(const Vector& v) {//added
 	return !operator==(v);
+}
+
+
+bool Vector::operator>(const Vector& v) {
+	if (elem == v.elem && sz == v.size()) return false;
+		
+
+	auto min_siz = sz < v.size() ? sz : v.size();
+	for (int i = 0; i != min_siz; ++i) {
+		if (elem[i] == v.elem[i]) continue;
+		return elem[i] > v.elem[i] ? true : false;
+			
+	} 
+	return min_siz == sz ? false : true; // if equal but one's size is greater
+}
+
+bool Vector::operator<(const Vector& v) {
+	if (elem == v.elem && sz == v.size()) return false;
+
+	auto min_siz = sz < v.size() ? sz : v.size();
+	for (int i = 0; i != min_siz; ++i) {
+		if (elem[i] == v.elem[i]) continue;
+		return elem[i] < v.elem[i] ? true : false;
+
+	}
+	return min_siz == sz ? true : false; // if equal but one's size is greater
 }
 
 
@@ -89,8 +149,8 @@ double& Vector::front() {
 	return elem[0];
 }
 
-void Vector::push_back(double v) {
-	
-	
-
-}
+//void Vector::push_back(double v) {
+//	
+//	
+//
+//}

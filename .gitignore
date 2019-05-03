@@ -34,6 +34,8 @@
 
 *.sln
 
+
+Release
 Debug/
 x64/
 .vs/
