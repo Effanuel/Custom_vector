@@ -34,7 +34,7 @@
 
 *.sln
 
-
+Debug/
 x64/
 .vs/
 Custom_vector.vcxproj
