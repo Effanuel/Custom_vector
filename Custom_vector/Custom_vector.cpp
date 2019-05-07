@@ -20,8 +20,26 @@ void Timeit(unsigned int sz, Timer start) {
 	std::cout << "Custom_Vector\t" << start.elapsed() << " s" << std::endl;
 }
 
+template<typename T>
+int realocation(int sz, T& vec) {
+	unsigned int realoc = 0;
+	for (int i = 1; i <= sz; ++i) {
+		vec.push_back(i);
+		if (vec.capacity() == vec.size()) {
+			++realoc;
+		}	
+	}		
+	return realoc;
+}
+
 
 int main() {
+	unsigned int sz = 1e8;
+	std::vector<int> v1;
+	Vector<int> v2;
+	std::cout << "capacity()==size() for std::vector: " << realocation(sz, v1) << std::endl;
+	std::cout << "capacity()==size() for Custom_vector: " << realocation(sz, v2) << std::endl;
+
 	Timer start;
 	Timeit(1e5, start);
 	Timeit(1e6, start);
