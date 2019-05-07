@@ -12,7 +12,7 @@ private:
 	size_t cap;
 
 public:
-	Vector() : elem{ 0 }, sz{ 0 }, cap{ 8 }  {}
+	Vector() : elem{ nullptr }, sz{}, cap{}  {}
 	Vector(int s);
 	//Vector(int s, T val);
 	Vector(const Vector& v);
