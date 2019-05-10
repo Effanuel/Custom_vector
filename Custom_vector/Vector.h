@@ -14,7 +14,6 @@ private:
 	size_t cap;
 
 
-
 	void reallocate();
 public:
 	Vector() : elem{ nullptr }, sz{}, cap{}  {}
@@ -74,7 +73,7 @@ public:
 
 	void push_back(const T&);
 	void push_back(T&&);
-	void emplace_back(const T&);
+	template<class ... Args> void emplace_back(Args&&... args);
 	void pop_back();
 
 
@@ -99,11 +98,10 @@ Vector<T>::Vector(const Vector<T>& v) : elem{ new T[v.sz] }, sz{ v.sz }, cap{ v.
 
 
 template<class T>
-Vector<T>::Vector(Vector<T>&& v) : elem{ std::move(v.elem) }, sz{ std::move(v.sz) }, cap{ std::move(v.cap) }	{
+Vector<T>::Vector(Vector<T>&& v) : elem{ nullptr }, sz{ 0 }, cap{ 0 }
+{
 	std::cout << "vec::move::constr" << std::endl;
-	v.elem = nullptr;
-	v.sz = 0;
-	v.cap = 0;
+	v.swap(*this);
 }
 
 
@@ -114,9 +112,10 @@ Vector<T>::Vector(std::initializer_list<T> il)
 	: elem{ new T[il.size()] },
 	sz{ static_cast<size_t>(il.size()) }, 
 	cap{ static_cast<size_t>(il.size()) }
-		{
-			std::copy(il.begin(), il.end(), elem);
-		}
+{
+	std::cout << "vec::init::list" << std::endl;
+	std::copy(il.begin(), il.end(), elem);
+}
 
 
 
@@ -154,28 +153,21 @@ void Vector<T>::setElem(int idx, T val) {
 //	for(int i = 0; i)
 //}
 template<class T>
-Vector<T>& Vector<T>::operator=(const Vector<T> & v) {
+Vector<T>& Vector<T>::operator=(const Vector<T>& v) {
 	if (&v == this) return *this;
-	T* p = new T[v.sz];
-	for (int i = 0; i != v.sz; ++i) {
-		p[i] = v.elem[i];
-		delete[] elem;
-		elem = p;
-		sz = v.sz;
-		cap = v.cap;
-		return *this;
+	if (cap < v.cap) {
+		cap = v.cap << 1;
+		reallocate();
 	}
+	for (size_t i = 0; i != v.sz; ++i) {
+		elem[i] = v.elem[i];
+	}
+	sz = v.sz;
+	return *this;
 }
 template<class T>
 Vector<T>& Vector<T>::operator=(Vector<T>&& v) {
-	if (&v == this) return *this;
-	delete[] elem;
-	elem = v.elem;
-	sz = v.sz;
-	cap = v.cap;
-	v.elem = nullptr;
-	v.sz = 0;
-	v.cap = 0;
+	v.swap(*this);
 	return *this;
 }
 
@@ -330,11 +322,11 @@ const T* Vector<T>::data() const noexcept
 
 template<class T>
 void Vector<T>::clear() {
-	delete[] elem;
+	for (size_t i = 0; i < sz; ++i)
+		elem[i].~T();
 	sz = 0;
-	cap = 4;
-	elem = new T[cap];
 }
+
 template<class T>
 void Vector<T>::reserve(size_t mem) {
 	if (mem <= cap) return;
@@ -344,11 +336,25 @@ void Vector<T>::reserve(size_t mem) {
 template<class T>
 inline bool Vector<T>::empty() const
 {
-	return false;
+	return sz == 0;
 }
 template<class T>
-inline void Vector<T>::swap(Vector<T>&)
+inline void Vector<T>::swap(Vector<T>& other)
 {
+	size_t tSz, tCap;
+	T* tElem;
+
+	tElem = other.elem;
+	tSz = other.sz;
+	tCap = other.cap;
+
+	other.elem = elem;
+	other.sz = sz;
+	other.cap = cap;
+
+	sz = tSz;
+	cap = tCap;
+	elem = tElem;
 }
 template<class T>
 void Vector<T>::push_back(const T& val) {
@@ -379,10 +385,20 @@ inline void Vector<T>::push_back(T&& val)
 	elem[sz] = std::move(val);
 	++sz;
 }
-
 template<class T>
-inline void Vector<T>::emplace_back(const T&)
+template<class ... Args>
+inline void Vector<T>::emplace_back(Args&& ... args)
 {
+	if (cap == 0) {
+		reserve(1);
+		reallocate();
+	}
+	else if (sz == cap) {
+		cap <<= 1;
+		reallocate();
+	}
+	elem[sz] = std::move(T(std::forward<Args>(args) ...));
+	++sz;
 }
 
 template<class T>
