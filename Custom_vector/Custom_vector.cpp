@@ -14,7 +14,7 @@ void Timeit(unsigned int sz, Timer start) {
 	std::cout << "std::vector\t" << start.elapsed() << " s" << std::endl;
 
 	start.reset();
-	Vector<int> v2;
+	vector<int> v2;
 	for (int i = 1; i <= sz; ++i)
 		v2.push_back(1);
 	std::cout << "Custom_Vector\t" << start.elapsed() << " s" << std::endl;
@@ -36,9 +36,9 @@ int realocation(int sz, T& vec) {
 int main() {
 	//unsigned int sz = 1e6;
 	std::vector<int> v1;
-	Vector<int> v4 = { 1, 2, 3, 4 };
-	Vector<int> v3 = { 1, 2, 3, 4 };
-	Vector<int> v2 = std::move(v3);
+	vector<int> v4 = { 1, 2, 3, 4 };
+	vector<int> v3 = { 1, 2, 3, 4 };
+	vector<int> v2 = std::move(v3);
 
 	for (auto i = 0; i != v4.size(); ++i) {
 		std::cout << v4[i] << std::endl;

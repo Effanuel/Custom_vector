@@ -7,7 +7,7 @@
 using std::size_t;
 
 template<class T>
-class Vector {
+class vector {
 private:
 	T* elem;
 	size_t sz;
@@ -16,13 +16,13 @@ private:
 
 	void reallocate();
 public:
-	Vector() : elem{ nullptr }, sz{}, cap{}  {}
-	Vector(int s);
-	Vector(size_t s, T val);
-	Vector(const Vector<T>& v);
-	Vector(Vector<T>&& v);
-	Vector(std::initializer_list<T> il);
-	~Vector();
+	vector() : elem{ nullptr }, sz{}, cap{}  {}
+	vector(int s);
+	vector(size_t s, T val);
+	vector(const vector<T>& v);
+	vector(vector<T>&& v);
+	vector(std::initializer_list<T> il);
+	~vector();
 
 	size_t size() const { return sz; }
 	size_t capacity() const { return cap; }
@@ -30,19 +30,19 @@ public:
 	//void resize(int count);
 	void setElem(int idx, T val);
 
-	Vector<T>& operator=(const Vector<T>&);
-	Vector<T>& operator=(Vector&&);
-	Vector<T>& operator=(std::initializer_list<T>);
+	vector<T>& operator=(const vector<T>&);
+	vector<T>& operator=(vector&&);
+	vector<T>& operator=(std::initializer_list<T>);
 
 
-	friend Vector<T> operator+(const Vector<T>&, const Vector<T>&);
+	friend vector<T> operator+(const vector<T>&, const vector<T>&);
 
-	friend Vector<T> operator-(const Vector<T>&, const Vector<T>&);
+	friend vector<T> operator-(const vector<T>&, const vector<T>&);
 
-	bool operator==(const Vector<T>&);
-	bool operator!=(const Vector<T>&);
-	bool operator>(const Vector<T>&);
-	bool operator<(const Vector<T>&);
+	bool operator==(const vector<T>&);
+	bool operator!=(const vector<T>&);
+	bool operator>(const vector<T>&);
+	bool operator<(const vector<T>&);
 
 
 	T& operator[](size_t);
@@ -69,7 +69,7 @@ public:
 	void reserve(size_t);
 	bool empty() const;
 	//bool empty() const noexcept;
-	void swap(Vector<T>&);
+	void swap(vector<T>&);
 
 	void push_back(const T&);
 	void push_back(T&&);
@@ -89,7 +89,7 @@ void swap(T& a, T& b) {
 }
 
 template<class T>
-Vector<T>::Vector(const Vector<T>& v) : elem{ new T[v.sz] }, sz{ v.sz }, cap{ v.cap }	{
+vector<T>::vector(const vector<T>& v) : elem{ new T[v.sz] }, sz{ v.sz }, cap{ v.cap }	{
 	//for (size_t i = 0; i != sz; ++i) elem[i] = v.elem[i];
 	std::cout << "vec::copy::constr" << std::endl;
 	std::copy(v.elem, v.elem + v.sz, elem);
@@ -98,7 +98,7 @@ Vector<T>::Vector(const Vector<T>& v) : elem{ new T[v.sz] }, sz{ v.sz }, cap{ v.
 
 
 template<class T>
-Vector<T>::Vector(Vector<T>&& v) : elem{ nullptr }, sz{ 0 }, cap{ 0 }
+vector<T>::vector(vector<T>&& v) : elem{ nullptr }, sz{ 0 }, cap{ 0 }
 {
 	std::cout << "vec::move::constr" << std::endl;
 	v.swap(*this);
@@ -108,7 +108,7 @@ Vector<T>::Vector(Vector<T>&& v) : elem{ nullptr }, sz{ 0 }, cap{ 0 }
 
 
 template<class T>
-Vector<T>::Vector(std::initializer_list<T> il)
+vector<T>::vector(std::initializer_list<T> il)
 	: elem{ new T[il.size()] },
 	sz{ static_cast<size_t>(il.size()) }, 
 	cap{ static_cast<size_t>(il.size()) }
@@ -120,12 +120,12 @@ Vector<T>::Vector(std::initializer_list<T> il)
 
 
 template<class T>
-Vector<T>::~Vector() { delete[] elem; }
+vector<T>::~vector() { delete[] elem; }
 
 
 
 template<class T>
-Vector<T>::Vector(int s) : elem{ new T[s] }, sz{ s }, cap{ s } {
+vector<T>::vector(int s) : elem{ new T[s] }, sz{ s }, cap{ s } {
 	for (int i = 0; i < sz; ++i)
 		elem[i] = T();
 }
@@ -133,27 +133,27 @@ Vector<T>::Vector(int s) : elem{ new T[s] }, sz{ s }, cap{ s } {
 
 
 template<class T>
-Vector<T>::Vector(size_t s, T val) : elem{ new T[s] }, sz{ s }, cap{ s }  {
+vector<T>::vector(size_t s, T val) : elem{ new T[s] }, sz{ s }, cap{ s }  {
 	std::fill_n(elem, s, val);
 }
 
 
 
 template<class T>
-void Vector<T>::setElem(int idx, T val) {
+void vector<T>::setElem(int idx, T val) {
 	if (idx < 0 || idx >= sz) return;
 	elem[idx] = val;
 }
 
 
 
-//void Vector::resize(int count) {
+//void vector::resize(int count) {
 //	if (count) throw std::logic_error("Cannot resize to a negative value");
 //	sz = count;
 //	for(int i = 0; i)
 //}
 template<class T>
-Vector<T>& Vector<T>::operator=(const Vector<T>& v) {
+vector<T>& vector<T>::operator=(const vector<T>& v) {
 	if (&v == this) return *this;
 	if (cap < v.cap) {
 		cap = v.cap << 1;
@@ -166,40 +166,40 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& v) {
 	return *this;
 }
 template<class T>
-Vector<T>& Vector<T>::operator=(Vector<T>&& v) {
+vector<T>& vector<T>::operator=(vector<T>&& v) {
 	v.swap(*this);
 	return *this;
 }
 
 template<class T> // no boundaries
-T& Vector<T>::operator[](size_t i) {
+T& vector<T>::operator[](size_t i) {
 	return elem[i];
 }
 template<class T> // no boundaries
-const T& Vector<T>::operator[](size_t i) const	{
+const T& vector<T>::operator[](size_t i) const	{
 	return elem[i];
 }
 
 
 template<class T> // with boundaries
-const T& Vector<T>::at(size_t n) const {
-	if (n < 0 || cap <= n) throw std::out_of_range{ "Vector::at()" };
+const T& vector<T>::at(size_t n) const {
+	if (n < 0 || cap <= n) throw std::out_of_range{ "vector::at()" };
 	return elem[n];
 }
 
 template<class T> // with boundaries
-T& Vector<T>::at(size_t n)	{
-	if (n < 0 || cap <= n) throw std::out_of_range{ "Vector::at()" };
+T& vector<T>::at(size_t n)	{
+	if (n < 0 || cap <= n) throw std::out_of_range{ "vector::at()" };
 	return elem[n];
 }
 
 template<class T>
-inline const T* Vector<T>::begin() const	{
+inline const T* vector<T>::begin() const	{
 	return elem;
 }
 
 template<class T>
-inline const T* Vector<T>::end() const
+inline const T* vector<T>::end() const
 {
 	return elem + sz;
 }
@@ -207,29 +207,29 @@ inline const T* Vector<T>::end() const
 
 
 template<class T>
-Vector<T> operator+(const Vector<T> & a, const Vector<T> & b) {
+vector<T> operator+(const vector<T> & a, const vector<T> & b) {
 	if (a.size() != b.size())
-		throw std::runtime_error("Vector dydziu neatitikimas");
+		throw std::runtime_error("vector dydziu neatitikimas");
 	auto size = a.size();
-	Vector<T> c(size);
+	vector<T> c(size);
 	for (auto i = 0; i != a.size(); ++i)
 		c[i] = a[i] + b[i];
 	return c;
 
 }
 template<class T>
-Vector<T> operator-(const Vector<T> & a, const Vector<T> & b) {
+vector<T> operator-(const vector<T> & a, const vector<T> & b) {
 	if (a.size() != b.size())
-		throw std::runtime_error("Vector dydziu neatitikimas");
+		throw std::runtime_error("vector dydziu neatitikimas");
 	size_t size = a.size();
-	Vector<T> c( size );
+	vector<T> c( size );
 	for (size_t i = 0; i != a.size(); ++i)
 		c[i] = a[i] - b[i];
 	return c;
 
 }
 template<class T>
-bool Vector<T>::operator==(const Vector<T> & v) {
+bool vector<T>::operator==(const vector<T> & v) {
 	if (sz == v.size()) {
 		for (int i = 0; i != sz; ++i) {
 			if (elem[i] != v[i]) return false;
@@ -239,13 +239,13 @@ bool Vector<T>::operator==(const Vector<T> & v) {
 	return false;
 }
 template<class T>
-bool Vector<T>::operator!=(const Vector<T> & v) {
+bool vector<T>::operator!=(const vector<T> & v) {
 	return !operator==(v);
 }
 
 
 template<class T>
-inline Vector<T>& Vector<T>::operator=(std::initializer_list<T> il)
+inline vector<T>& vector<T>::operator=(std::initializer_list<T> il)
 {
 	T* temp = new T[il.size()];
 	std::copy(il.begin(), il.end(), temp);
@@ -257,7 +257,7 @@ inline Vector<T>& Vector<T>::operator=(std::initializer_list<T> il)
 }
 
 template<class T>
-bool Vector<T>::operator>(const Vector<T> & v) {
+bool vector<T>::operator>(const vector<T> & v) {
 	if (elem == v.elem && sz == v.size()) return false;
 
 
@@ -271,7 +271,7 @@ bool Vector<T>::operator>(const Vector<T> & v) {
 }
 
 template<class T>
-bool Vector<T>::operator<(const Vector & v) {
+bool vector<T>::operator<(const vector & v) {
 	if (elem == v.elem && sz == v.size()) return false;
 
 	auto min_siz = sz < v.size() ? sz : v.size();
@@ -285,61 +285,61 @@ bool Vector<T>::operator<(const Vector & v) {
 
 
 template<class T>
-const T& Vector<T>::back() const {
+const T& vector<T>::back() const {
 	if (sz == 0) throw std::out_of_range("Empty vector");//added
 	return elem[sz - 1];
 }
 
 template<class T>
-T& Vector<T>::back() {
+T& vector<T>::back() {
 	if (sz == 0) throw std::out_of_range("Empty vector");//added
 	return elem[sz - 1];
 }
 template<class T>
-const T& Vector<T>::front() const {
+const T& vector<T>::front() const {
 	if (sz == 0) throw std::out_of_range("Empty vector");//added
 	return elem[0];
 }
 
 template<class T>
-T& Vector<T>::front() {
+T& vector<T>::front() {
 	if (sz == 0) throw std::out_of_range("Empty vector");//added
 	return elem[0];
 }
 
 template<class T>
-T* Vector<T>::data() noexcept
+T* vector<T>::data() noexcept
 {
 	return elem;
 }
 
 template<class T>
-const T* Vector<T>::data() const noexcept
+const T* vector<T>::data() const noexcept
 {
 	return elem;
 }
 
 
 template<class T>
-void Vector<T>::clear() {
+void vector<T>::clear() {
 	for (size_t i = 0; i < sz; ++i)
 		elem[i].~T();
 	sz = 0;
 }
 
 template<class T>
-void Vector<T>::reserve(size_t mem) {
+void vector<T>::reserve(size_t mem) {
 	if (mem <= cap) return;
 	cap = mem;
 	reallocate();
 }
 template<class T>
-inline bool Vector<T>::empty() const
+inline bool vector<T>::empty() const
 {
 	return sz == 0;
 }
 template<class T>
-inline void Vector<T>::swap(Vector<T>& other)
+inline void vector<T>::swap(vector<T>& other)
 {
 	size_t tSz, tCap;
 	T* tElem;
@@ -357,7 +357,7 @@ inline void Vector<T>::swap(Vector<T>& other)
 	elem = tElem;
 }
 template<class T>
-void Vector<T>::push_back(const T& val) {
+void vector<T>::push_back(const T& val) {
 	if (cap == 0) {
 		reserve(1);
 		reallocate();
@@ -371,7 +371,7 @@ void Vector<T>::push_back(const T& val) {
 }
 
 template<class T>
-inline void Vector<T>::push_back(T&& val)
+inline void vector<T>::push_back(T&& val)
 {
 	if (cap == 0) {
 		reserve(1);
@@ -387,7 +387,7 @@ inline void Vector<T>::push_back(T&& val)
 }
 template<class T>
 template<class ... Args>
-inline void Vector<T>::emplace_back(Args&& ... args)
+inline void vector<T>::emplace_back(Args&& ... args)
 {
 	if (cap == 0) {
 		reserve(1);
@@ -402,14 +402,14 @@ inline void Vector<T>::emplace_back(Args&& ... args)
 }
 
 template<class T>
-inline void Vector<T>::pop_back()
+inline void vector<T>::pop_back()
 {
 	--sz;
 	elem[sz].~T();
 }
 
 template<class T>
-inline void Vector<T>::reallocate() //recreates vector to use new capacity
+inline void vector<T>::reallocate() //recreates vector to use new capacity
 {
 	T* temp = new T[cap];
 	std::memcpy(temp, elem, sz * sizeof(T));
