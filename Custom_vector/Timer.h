@@ -21,3 +21,4 @@ public:
 		return durationDouble(hrClock::now() - start).count();
 	}
 };
+

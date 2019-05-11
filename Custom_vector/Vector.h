@@ -16,11 +16,19 @@ private:
 
 	void reallocate();
 public:
-	vector() : elem{ nullptr }, sz{}, cap{}  {}
-	vector(int s);
-	vector(size_t s, T val);
-	vector(const vector<T>& v);
-	vector(vector<T>&& v);
+	typedef T& reference;
+	typedef const T& const_reference;
+	typedef T* iterator;
+	typedef const T* const_iterator;
+	typedef std::reverse_iterator<iterator> reverse_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+
+	vector() : elem{ nullptr }, sz{ 0 }, cap{ 0 }  {}
+	vector(int);
+	vector(size_t, T);
+	vector(const vector<T>&);
+	vector(vector<T>&&) noexcept;
 	vector(std::initializer_list<T> il);
 	~vector();
 
@@ -44,30 +52,41 @@ public:
 	bool operator>(const vector<T>&);
 	bool operator<(const vector<T>&);
 
+	reference at(size_t);
+	const_reference at(size_t) const;
 
-	T& operator[](size_t);
-	const T& operator[](size_t) const;
+	reference operator[](size_t);
+	const_reference operator[](size_t) const;
 
-	const T& at(size_t) const;
-	T& at(size_t);
+	reference front();
+	const_reference front() const;
 
-	const T* begin() const;
-	const T* end() const;
-
-	const T& back() const;
-	T& back();
-	const T& front() const;
-	T& front();
-
+	reference back();
+	const_reference back() const;
 
 	T* data() noexcept;
 	const T* data() const noexcept;
+
+	iterator begin() noexcept;
+	const_iterator begin() const noexcept;
+	const_iterator cbegin() const noexcept;
+
+	iterator end() noexcept;
+	const_iterator end() const noexcept;
+	const_iterator cend() const noexcept;
+
+	reverse_iterator rbegin() noexcept;
+	const_reverse_iterator rbegin() const noexcept;
+
+	reverse_iterator rend() noexcept;
+	const_reverse_iterator rend() const noexcept;
 
 
 
 	void clear();
 	void reserve(size_t);
 	bool empty() const;
+	void shrink_to_fit();
 	//bool empty() const noexcept;
 	void swap(vector<T>&);
 
@@ -98,7 +117,7 @@ vector<T>::vector(const vector<T>& v) : elem{ new T[v.sz] }, sz{ v.sz }, cap{ v.
 
 
 template<class T>
-vector<T>::vector(vector<T>&& v) : elem{ nullptr }, sz{ 0 }, cap{ 0 }
+vector<T>::vector(vector<T>&& v) noexcept : elem{ nullptr }, sz{ 0 }, cap{ 0 }
 {
 	std::cout << "vec::move::constr" << std::endl;
 	v.swap(*this);
@@ -120,7 +139,7 @@ vector<T>::vector(std::initializer_list<T> il)
 
 
 template<class T>
-vector<T>::~vector() { delete[] elem; }
+vector<T>::~vector() { delete[] elem; elem = nullptr; }
 
 
 
@@ -171,38 +190,7 @@ vector<T>& vector<T>::operator=(vector<T>&& v) {
 	return *this;
 }
 
-template<class T> // no boundaries
-T& vector<T>::operator[](size_t i) {
-	return elem[i];
-}
-template<class T> // no boundaries
-const T& vector<T>::operator[](size_t i) const	{
-	return elem[i];
-}
 
-
-template<class T> // with boundaries
-const T& vector<T>::at(size_t n) const {
-	if (n < 0 || cap <= n) throw std::out_of_range{ "vector::at()" };
-	return elem[n];
-}
-
-template<class T> // with boundaries
-T& vector<T>::at(size_t n)	{
-	if (n < 0 || cap <= n) throw std::out_of_range{ "vector::at()" };
-	return elem[n];
-}
-
-template<class T>
-inline const T* vector<T>::begin() const	{
-	return elem;
-}
-
-template<class T>
-inline const T* vector<T>::end() const
-{
-	return elem + sz;
-}
 
 
 
@@ -285,39 +273,109 @@ bool vector<T>::operator<(const vector & v) {
 
 
 template<class T>
-const T& vector<T>::back() const {
-	if (sz == 0) throw std::out_of_range("Empty vector");//added
-	return elem[sz - 1];
+typename vector<T>::reference vector<T>::at(size_t pos) {
+	if (pos < sz) {
+		return elem[pos];
+	}
+
+	throw std::out_of_range("out of range");
+}
+
+template<typename T>
+typename vector<T>::const_reference vector<T>::at(size_t pos) const {
+	return at(pos);
 }
 
 template<class T>
-T& vector<T>::back() {
-	if (sz == 0) throw std::out_of_range("Empty vector");//added
-	return elem[sz - 1];
+typename vector<T>::reference vector<T>::operator[](size_t pos) {
+	return elem[pos];
 }
+
 template<class T>
-const T& vector<T>::front() const {
-	if (sz == 0) throw std::out_of_range("Empty vector");//added
+typename vector<T>::const_reference vector<T>::operator[](size_t pos) const {
+	return elem[pos];
+}
+
+template<class T>
+typename vector<T>::reference vector<T>::front() {
 	return elem[0];
 }
 
 template<class T>
-T& vector<T>::front() {
-	if (sz == 0) throw std::out_of_range("Empty vector");//added
+typename vector<T>::const_reference vector<T>::front() const {
 	return elem[0];
 }
 
 template<class T>
-T* vector<T>::data() noexcept
-{
+typename vector<T>::reference vector<T>::back() {
+	return elem[sz - 1];
+}
+
+template<class T>
+typename vector<T>::const_reference vector<T>::back() const {
+	return elem[sz - 1];
+}
+
+template<class T>
+T* vector<T>::data() noexcept {
+	return elem;
+}
+template<class T>
+const T* vector<T>::data() const noexcept {
 	return elem;
 }
 
 template<class T>
-const T* vector<T>::data() const noexcept
-{
+typename vector<T>::iterator vector<T>::begin() noexcept {
 	return elem;
 }
+
+template<class T>
+typename vector<T>::const_iterator vector<T>::begin() const noexcept {
+	return elem;
+}
+
+template<class T>
+typename vector<T>::const_iterator vector<T>::cbegin() const noexcept {
+	return begin();
+}
+
+template<class T>
+typename vector<T>::iterator vector<T>::end() noexcept {
+	return elem + sz;
+}
+
+template<class T>
+typename vector<T>::const_iterator vector<T>::end() const noexcept {
+	return elem + sz;
+}
+
+template<class T>
+typename vector<T>::const_iterator vector<T>::cend() const noexcept {
+	return end();
+}
+
+template<class T>
+typename vector<T>::reverse_iterator vector<T>::rbegin() noexcept {
+	return reverse_iterator(elem + sz);
+}
+
+template<class T>
+typename vector<T>::const_reverse_iterator vector<T>::rbegin() const noexcept {
+	return rbegin();
+}
+
+template<class T>
+typename vector<T>::reverse_iterator vector<T>::rend() noexcept {
+	return reverse_iterator(elem);
+}
+
+template<class T>
+typename vector<T>::const_reverse_iterator vector<T>::rend() const noexcept {
+	return rend();
+}
+
+
 
 
 template<class T>
@@ -338,6 +396,16 @@ inline bool vector<T>::empty() const
 {
 	return sz == 0;
 }
+
+template<class T>
+void vector<T>::shrink_to_fit() {
+	if (cap != sz) {
+		cap = sz;
+		reallocate();
+	}
+}
+
+
 template<class T>
 inline void vector<T>::swap(vector<T>& other)
 {
@@ -387,7 +455,7 @@ inline void vector<T>::push_back(T&& val)
 }
 template<class T>
 template<class ... Args>
-inline void vector<T>::emplace_back(Args&& ... args)
+inline void vector<T>::emplace_back(Args&&... args)
 {
 	if (cap == 0) {
 		reserve(1);
@@ -397,7 +465,7 @@ inline void vector<T>::emplace_back(Args&& ... args)
 		cap <<= 1;
 		reallocate();
 	}
-	elem[sz] = std::move(T(std::forward<Args>(args) ...));
+	elem[sz] = std::move(T(std::forward<Args>(args)...));
 	++sz;
 }
 
@@ -416,3 +484,22 @@ inline void vector<T>::reallocate() //recreates vector to use new capacity
 	delete[] elem;
 	elem = temp;
 }
+
+
+
+class Mock {
+public:
+	int a;
+	double b;
+
+	Mock() : a{ 0 }, b{ 0 } {}
+	Mock(int a_, double b_) : a{ std::move(a_) }, b{ std::move(b_) }	{
+		std::cout << "I am being constructed.\n";
+	}
+
+	Mock(Mock&& other) noexcept : a{ std::move(other.a) }, b{ std::move(other.b) }	{
+		std::cout << "I am being moved.\n";
+	}
+
+	Mock& operator=(const Mock& other) = default;
+};

@@ -34,6 +34,12 @@
 
 *.sln
 
+packages/
+packages.config
+
+pch.*
+UnitTest.vcxproj
+
 
 Release
 Debug/

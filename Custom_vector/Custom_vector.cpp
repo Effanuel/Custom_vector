@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-void Timeit(unsigned int sz, Timer start) {
+void Timeit(int sz, Timer start) {
 	std::cout << "\tSize: "<< sz << std::endl;
 
 	start.reset();
@@ -35,14 +35,21 @@ int realocation(int sz, T& vec) {
 
 int main() {
 	//unsigned int sz = 1e6;
-	std::vector<int> v1;
+	vector<Mock> v1;
+	v1.emplace_back(4, 4.2);
+	v1.emplace_back(1, 1.2);
+	v1.emplace_back(22, 6.3);
 	vector<int> v4 = { 1, 2, 3, 4 };
 	vector<int> v3 = { 1, 2, 3, 4 };
 	vector<int> v2 = std::move(v3);
-
-	for (auto i = 0; i != v4.size(); ++i) {
-		std::cout << v4[i] << std::endl;
+	//for (auto i = 0; i != v1.size(); ++i) {
+	//	std::cout << v1[i] << std::endl;
+	//}
+	for (auto& el : v1) {
+		std::cout << el.a << std::endl;
+		std::cout << el.b << std::endl;
 	}
+
 	//std::cout << "capacity()==size() for std::vector: " << realocation(sz, v1) << std::endl;
 	//std::cout << "capacity()==size() for Custom_vector: " << realocation(sz, v2) << std::endl;
 
