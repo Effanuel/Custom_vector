@@ -1,6 +1,8 @@
 #pragma once
 #include <chrono>
-
+#include <vector>
+#include <iostream>
+#include <string>
 
 class Timer {
 private:
@@ -22,3 +24,34 @@ public:
 	}
 };
 
+
+void Timeit(int sz, Timer start) {
+	std::cout << "\tSize: " << sz << std::endl;
+
+	start.reset();
+	std::vector<int> v1;
+	for (int i = 1; i <= sz; ++i)
+		v1.push_back(i);
+	std::cout << "std::vector\t" << start.elapsed() << " s" << std::endl;
+	v1.clear();
+
+	start.reset();
+	vector<int> v2;
+	for (int i = 1; i <= sz; ++i)
+		v2.push_back(i);
+	std::cout << "Custom_Vector\t" << start.elapsed() << " s" << std::endl;
+	v2.clear();
+}
+
+template<typename T>
+int realocation(int sz, T& vec) {
+	int realoc = 0;
+	for (int i = 1; i <= sz; ++i) {
+		vec.push_back(i);
+		if (vec.capacity() == vec.size()) {
+			++realoc;
+		}
+	}
+	vec.clear();
+	return realoc;
+}

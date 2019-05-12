@@ -14,7 +14,7 @@ private:
 	size_t cap;
 
 
-	void reallocate();
+	void _reallocate();
 public:
 	typedef T& reference;
 	typedef const T& const_reference;
@@ -42,9 +42,10 @@ public:
 	vector<T>& operator=(vector&&);
 	vector<T>& operator=(std::initializer_list<T>);
 
-
+	template<class Y>
 	friend vector<T> operator+(const vector<T>&, const vector<T>&);
-
+	
+	template<class Y>
 	friend vector<T> operator-(const vector<T>&, const vector<T>&);
 
 	bool operator==(const vector<T>&);
@@ -176,7 +177,7 @@ vector<T>& vector<T>::operator=(const vector<T>& v) {
 	if (&v == this) return *this;
 	if (cap < v.cap) {
 		cap = v.cap << 1;
-		reallocate();
+		_reallocate();
 	}
 	for (size_t i = 0; i != v.sz; ++i) {
 		elem[i] = v.elem[i];
@@ -389,7 +390,7 @@ template<class T>
 void vector<T>::reserve(size_t mem) {
 	if (mem <= cap) return;
 	cap = mem;
-	reallocate();
+	_reallocate();
 }
 template<class T>
 inline bool vector<T>::empty() const
@@ -401,7 +402,7 @@ template<class T>
 void vector<T>::shrink_to_fit() {
 	if (cap != sz) {
 		cap = sz;
-		reallocate();
+		_reallocate();
 	}
 }
 
@@ -428,10 +429,10 @@ template<class T>
 void vector<T>::push_back(const T& val) {
 	if (cap == 0) {
 		reserve(1);
-		reallocate();
+		_reallocate();
 	} else if (sz == cap) {
 		cap <<= 1;
-		reallocate();
+		_reallocate();
 	}
 
 	elem[sz] = val;
@@ -443,11 +444,11 @@ inline void vector<T>::push_back(T&& val)
 {
 	if (cap == 0) {
 		reserve(1);
-		reallocate();
+		_reallocate();
 	}
 	else if (sz == cap) {
 		cap <<= 1;
-		reallocate();
+		_reallocate();
 	}
 
 	elem[sz] = std::move(val);
@@ -459,11 +460,11 @@ inline void vector<T>::emplace_back(Args&&... args)
 {
 	if (cap == 0) {
 		reserve(1);
-		reallocate();
+		_reallocate();
 	}
 	else if (sz == cap) {
 		cap <<= 1;
-		reallocate();
+		_reallocate();
 	}
 	elem[sz] = std::move(T(std::forward<Args>(args)...));
 	++sz;
@@ -477,7 +478,7 @@ inline void vector<T>::pop_back()
 }
 
 template<class T>
-inline void vector<T>::reallocate() //recreates vector to use new capacity
+inline void vector<T>::_reallocate() //recreates vector to use new capacity
 {
 	T* temp = new T[cap];
 	std::memcpy(temp, elem, sz * sizeof(T));

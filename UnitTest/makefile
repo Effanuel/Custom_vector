@@ -8,16 +8,18 @@ BUILD_DIR ?= ./build
 TARGET_DIR ?= ./bin
 
 
-SRCS := Custom_vector.cpp#$(find $(SRC_DIRS) -name "*.cpp")
-OBJS := ./build/Custom_vector.cpp.o
+SRCS := main.cpp test.cpp#$(find $(SRC_DIRS) -name "*.cpp")
+OBJS := ./build/test.cpp.o ./build/main.cpp.o
 DEPS := $(OBJS:.o=.d)
 
 INC_DIRS := ./build ./bin
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
+#===================
+LIB_DIRS := -L /usr/local/lib -l gtest
+#===================
 
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -std=c++14 -O2
-
+CPPFLAGS ?= $(INC_FLAGS) $(LIB_DIRS) -MMD -MP -std=c++14 -O2
 
 $(TARGET_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(MKDIR_P) $(dir $@)
@@ -39,10 +41,8 @@ run: all
 clean:
 	$(RM) -r $(BUILD_DIR)
 	$(RM) -r $(TARGET_DIR)
-# cd ../UnitTest && $(MAKE) && $(MAKE) clean
 
-# test:
-# 	cd ../UnitTest && $(MAKE) && $(MAKE) run
+
 
 -include $(DEPS)
 
