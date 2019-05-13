@@ -1,6 +1,22 @@
 # Custom_vector
 
+## Prerequisites
+1. GNU C++ Compiler
 
+## Installation
+1. [Atsisiūskite naujausią versiją.](https://github.com/Effanuel/Custom_vector/archive/v1.0.zip)
+2. Extract failus.
+3. Per command-line:
+
+```
+cd Custom_vector
+make run
+```
+4. Executable yra **./Custom_vector/bin/project.exe**
+```
+cd bin
+./project
+```
 
 
 
