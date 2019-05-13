@@ -174,12 +174,6 @@ void vector<T>::setElem(int idx, T val) {
 }
 
 
-
-//void vector::resize(int count) {
-//	if (count) throw std::logic_error("Cannot resize to a negative value");
-//	sz = count;
-//	for(int i = 0; i)
-//}
 template<class T>
 vector<T>& vector<T>::operator=(const vector<T> & v) {
 	if (&v == this) return *this;
@@ -410,10 +404,10 @@ inline bool vector<T>::empty() const
 
 template<class T>
 void vector<T>::shrink_to_fit() {
-	if (cap != sz) {
-		cap = sz;
-		//_reallocate(cap);
+	for (auto i = sz; i < cap; i++) {
+		elem[i].~T();
 	}
+	cap = sz;
 }
 
 
