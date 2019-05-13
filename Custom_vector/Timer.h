@@ -52,6 +52,6 @@ int realocation(int sz, T& vec) {
 			++realoc;
 		}
 	}
-	vec.clear();
+	//vec.clear();
 	return realoc;
 }

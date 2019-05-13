@@ -14,7 +14,8 @@ private:
 	size_t cap;
 
 
-	void _reallocate();
+	void _reallocate(size_t);
+	size_t _exponentCapacity(size_t) const;
 public:
 	typedef T& reference;
 	typedef const T& const_reference;
@@ -24,7 +25,7 @@ public:
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
-	vector() : elem{ nullptr }, sz{ 0 }, cap{ 0 }  {}
+	vector() : sz{ 0 }, cap{ 0 }  {elem = new T[cap]; }
 	vector(int);
 	vector(size_t, T);
 	vector(const vector<T>&);
@@ -44,7 +45,7 @@ public:
 
 	template<class Y>
 	friend vector<T> operator+(const vector<T>&, const vector<T>&);
-	
+
 	template<class Y>
 	friend vector<T> operator-(const vector<T>&, const vector<T>&);
 
@@ -88,16 +89,15 @@ public:
 	void reserve(size_t);
 	bool empty() const;
 	void shrink_to_fit();
-	//bool empty() const noexcept;
 	void swap(vector<T>&);
 
 	void push_back(const T&);
 	void push_back(T&&);
-	template<class ... Args> void emplace_back(Args&&... args);
+	template<class ... Args> void emplace_back(Args&& ... args);
 	void pop_back();
+	size_t max_size() const;
 
 
-	
 };
 
 
@@ -130,7 +130,7 @@ vector<T>::vector(vector<T>&& v) noexcept : elem{ nullptr }, sz{ 0 }, cap{ 0 }
 template<class T>
 vector<T>::vector(std::initializer_list<T> il)
 	: elem{ new T[il.size()] },
-	sz{ static_cast<size_t>(il.size()) }, 
+	sz{ static_cast<size_t>(il.size()) },
 	cap{ static_cast<size_t>(il.size()) }
 {
 	std::cout << "vec::init::list" << std::endl;
@@ -140,7 +140,15 @@ vector<T>::vector(std::initializer_list<T> il)
 
 
 template<class T>
-vector<T>::~vector() { delete[] elem; elem = nullptr; }
+vector<T>::~vector() {
+	if (elem == nullptr) return;
+
+	for (size_t i = 0; i < sz; ++i) {
+		elem[i].~T();
+	}
+	elem = nullptr;
+	
+}
 
 
 
@@ -173,11 +181,10 @@ void vector<T>::setElem(int idx, T val) {
 //	for(int i = 0; i)
 //}
 template<class T>
-vector<T>& vector<T>::operator=(const vector<T>& v) {
+vector<T>& vector<T>::operator=(const vector<T> & v) {
 	if (&v == this) return *this;
 	if (cap < v.cap) {
-		cap = v.cap << 1;
-		_reallocate();
+		_reallocate(v.capacity());
 	}
 	for (size_t i = 0; i != v.sz; ++i) {
 		elem[i] = v.elem[i];
@@ -186,7 +193,7 @@ vector<T>& vector<T>::operator=(const vector<T>& v) {
 	return *this;
 }
 template<class T>
-vector<T>& vector<T>::operator=(vector<T>&& v) {
+vector<T>& vector<T>::operator=(vector<T> && v) {
 	v.swap(*this);
 	return *this;
 }
@@ -211,7 +218,7 @@ vector<T> operator-(const vector<T> & a, const vector<T> & b) {
 	if (a.size() != b.size())
 		throw std::runtime_error("vector dydziu neatitikimas");
 	size_t size = a.size();
-	vector<T> c( size );
+	vector<T> c(size);
 	for (size_t i = 0; i != a.size(); ++i)
 		c[i] = a[i] - b[i];
 	return c;
@@ -389,8 +396,11 @@ void vector<T>::clear() {
 template<class T>
 void vector<T>::reserve(size_t mem) {
 	if (mem <= cap) return;
+	if (cap > max_size()) {
+		throw new std::length_error("max length exceeded");
+	}
 	cap = mem;
-	_reallocate();
+	//_reallocate(cap);
 }
 template<class T>
 inline bool vector<T>::empty() const
@@ -402,13 +412,13 @@ template<class T>
 void vector<T>::shrink_to_fit() {
 	if (cap != sz) {
 		cap = sz;
-		_reallocate();
+		//_reallocate(cap);
 	}
 }
 
 
 template<class T>
-inline void vector<T>::swap(vector<T>& other)
+inline void vector<T>::swap(vector<T> & other)
 {
 	size_t tSz, tCap;
 	T* tElem;
@@ -426,13 +436,9 @@ inline void vector<T>::swap(vector<T>& other)
 	elem = tElem;
 }
 template<class T>
-void vector<T>::push_back(const T& val) {
-	if (cap == 0) {
-		reserve(1);
-		_reallocate();
-	} else if (sz == cap) {
-		cap <<= 1;
-		_reallocate();
+void vector<T>::push_back(const T & val) {
+	if (sz == cap) {
+		_reallocate(cap+1);
 	}
 
 	elem[sz] = val;
@@ -440,15 +446,11 @@ void vector<T>::push_back(const T& val) {
 }
 
 template<class T>
-inline void vector<T>::push_back(T&& val)
+inline void vector<T>::push_back(T && val)
 {
-	if (cap == 0) {
-		reserve(1);
-		_reallocate();
-	}
-	else if (sz == cap) {
-		cap <<= 1;
-		_reallocate();
+	if (sz == cap) {
+
+		_reallocate(cap+1);
 	}
 
 	elem[sz] = std::move(val);
@@ -456,15 +458,10 @@ inline void vector<T>::push_back(T&& val)
 }
 template<class T>
 template<class ... Args>
-inline void vector<T>::emplace_back(Args&&... args)
+inline void vector<T>::emplace_back(Args && ... args)
 {
-	if (cap == 0) {
-		reserve(1);
-		_reallocate();
-	}
-	else if (sz == cap) {
-		cap <<= 1;
-		_reallocate();
+	if (sz == cap) {
+		_reallocate(cap+1);
 	}
 	elem[sz] = std::move(T(std::forward<Args>(args)...));
 	++sz;
@@ -478,14 +475,36 @@ inline void vector<T>::pop_back()
 }
 
 template<class T>
-inline void vector<T>::_reallocate() //recreates vector to use new capacity
+inline void vector<T>::_reallocate(size_t min) //recreates vector to use new capacity
 {
-	T* temp = new T[cap];
+	const size_t newCap = _exponentCapacity(min);
+	T* temp = new T[newCap];
 	std::memcpy(temp, elem, sz * sizeof(T));
-	delete[] elem;
+	for (size_t i = 0; i < sz; ++i) {
+		elem[i].~T();
+	}
 	elem = temp;
+	cap = newCap;
 }
 
+template<class T>
+size_t vector<T>::_exponentCapacity(size_t newSize) const {
+	if (capacity() > max_size() - capacity() / 2) {
+		return newSize;
+	}
+
+	const size_t exp = cap * 1.5;
+	if (exp < newSize) {
+		return newSize;
+	}
+
+	return exp;
+}
+
+template<class T>
+size_t vector<T>::max_size() const {
+	return std::numeric_limits<size_t>::max();
+}
 
 
 class Mock {

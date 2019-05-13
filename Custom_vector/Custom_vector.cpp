@@ -4,7 +4,7 @@
 
 
 int main() {
-	int sz = 1e8;
+	int sz = 1e7;
 	std::vector<int> v1;
 	vector<int> v2; //custom vector
 	try {
