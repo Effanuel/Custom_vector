@@ -43,8 +43,10 @@ typedef vector<Mock> vMock;
 template<class T>
 void vector<T>::reserve(size_t mem) {
 	if (mem <= cap) return;
+	if (cap > max_size()) {
+		throw new std::length_error("max length exceeded");
+	}
 	cap = mem;
-	reallocate();
 }
 ...
 TEST(Capacity, Reserve)
@@ -79,15 +81,10 @@ TEST(Modifier, Clear)
 ...
 template<class T>
 template<class ... Args>
-inline void vector<T>::emplace_back(Args&&... args)
+inline void vector<T>::emplace_back(Args && ... args)
 {
-	if (cap == 0) {
-		reserve(1);
-		reallocate();
-	}
-	else if (sz == cap) {
-		cap <<= 1;
-		reallocate();
+	if (sz == cap) {
+		_reallocate(cap+1);
 	}
 	elem[sz] = std::move(T(std::forward<Args>(args)...));
 	++sz;
@@ -110,13 +107,9 @@ TEST(Modifier, EmplaceBack)
 ```C++
 ...
 template<class T>
-void vector<T>::push_back(const T& val) {
-	if (cap == 0) {
-		reserve(1);
-		_reallocate();
-	} else if (sz == cap) {
-		cap <<= 1;
-		_reallocate();
+void vector<T>::push_back(const T & val) {
+	if (sz == cap) {
+		_reallocate(cap+1);
 	}
 
 	elem[sz] = val;
@@ -161,12 +154,30 @@ TEST(Modifier, PopBack)
 ### private functions:
 ```C++
 template<class T>
-inline void vector<T>::_reallocate() //recreates vector to use new capacity
+inline void vector<T>::_reallocate(size_t min) //recreates vector to use new capacity
 {
-	T* temp = new T[cap];
+	const size_t newCap = _exponentCapacity(min);
+	T* temp = new T[newCap];
 	std::memcpy(temp, elem, sz * sizeof(T));
-	delete[] elem;
+	for (size_t i = 0; i < sz; ++i) {
+		elem[i].~T();
+	}
 	elem = temp;
+	cap = newCap;
+}
+
+template<class T>
+size_t vector<T>::_exponentCapacity(size_t newSize) const {
+	if (capacity() > max_size() - capacity() / 2) {
+		return newSize;
+	}
+
+	const size_t exp = cap * 1.5;
+	if (exp < newSize) {
+		return newSize;
+	}
+
+	return exp;
 }
 
 ```

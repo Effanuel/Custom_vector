@@ -175,17 +175,21 @@ void vector<T>::setElem(int idx, T val) {
 
 
 template<class T>
-vector<T>& vector<T>::operator=(const vector<T> & v) {
+vector<T>& vector<T>::operator=(const vector<T>& v) {
 	if (&v == this) return *this;
-	if (cap < v.cap) {
-		_reallocate(v.capacity());
-	}
-	for (size_t i = 0; i != v.sz; ++i) {
+	sz = v.size();
+	cap = v.capacity();
+	elem = new T[cap];
+
+	for (size_t i = 0; i != sz; ++i) {
 		elem[i] = v.elem[i];
 	}
-	sz = v.sz;
 	return *this;
 }
+
+
+
+
 template<class T>
 vector<T>& vector<T>::operator=(vector<T> && v) {
 	v.swap(*this);
