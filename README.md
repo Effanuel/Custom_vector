@@ -19,12 +19,16 @@ cd bin
 ```
 
 
-
-
+---
+## push_back()
 |   | 100,000  | 1,000,000   | 10,000,000   |  100,000,000  |
 |---|---|---|---|---|
 |  std::vector | 0.0012542  | 0.0073552  |  0.0889958   |  0.911318 |
 | Custom_vector  |  0.0005783 |   0.0052092 | 0.0729189  | 0.540884  |
+
+---
+## Student class vector'iaus skirstymas
+![customVSstd](https://github.com/Effanuel/Custom_vector/blob/master/custom%20vs%20std.png)
 
 ---
 
@@ -153,15 +157,15 @@ TEST(Modifier, PopBack)
 
 ### private functions:
 ```C++
-template<class T>
+template<typename T>
 inline void vector<T>::_reallocate(size_t min) //recreates vector to use new capacity
 {
 	const size_t newCap = _exponentCapacity(min);
 	T* temp = new T[newCap];
-	std::memcpy(temp, elem, sz * sizeof(T));
 	for (size_t i = 0; i < sz; ++i) {
-		elem[i].~T();
+		temp[i] = elem[i];
 	}
+	delete[] elem;
 	elem = temp;
 	cap = newCap;
 }
