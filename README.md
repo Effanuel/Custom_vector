@@ -31,7 +31,6 @@ cd bin
 ![customVSstd](https://github.com/Effanuel/Custom_vector/blob/master/custom%20vs%20std.png)
 
 ---
-
 ```c++
 #include <gtest/gtest.h>
 #include "../Custom_vector/Vector.h"
@@ -40,7 +39,111 @@ typedef vector<int> vint;
 typedef vector<Mock> vMock;
 ...
 ```
-## Member functions:
+---
+### Constructors:
+```C++
+vector() : sz{ 0 }, cap{ 0 }  {elem = new T[cap]; }
+vector(int);
+vector(size_t, T);
+vector(const vector<T>&);
+vector(vector<T>&&) noexcept;
+vector(std::initializer_list<T> il);
+```
+---
+### Operators:
+```C++
+vector<T>& operator=(const vector<T>&);
+vector<T>& operator=(vector&&);
+vector<T>& operator=(std::initializer_list<T>);
+
+friend vector<Y> operator+(const vector<Y>&, const vector<Y>&);
+friend vector<Y> operator-(const vector<Y>&, const vector<Y>&);
+
+bool operator==(const vector<T>&);
+bool operator!=(const vector<T>&);
+bool operator>(const vector<T>&);
+bool operator<(const vector<T>&);
+```
+---
+### Iterators:
+```C++
+reference at(size_t);
+const_reference at(size_t) const;
+
+reference operator[](size_t);
+const_reference operator[](size_t) const;
+
+reference front();
+const_reference front() const;
+
+reference back();
+const_reference back() const;
+
+T* data() noexcept;
+const T* data() const noexcept;
+
+iterator begin() noexcept;
+const_iterator begin() const noexcept;
+const_iterator cbegin() const noexcept;
+
+iterator end() noexcept;
+const_iterator end() const noexcept;
+const_iterator cend() const noexcept;
+
+reverse_iterator rbegin() noexcept;
+const_reverse_iterator rbegin() const noexcept;
+
+reverse_iterator rend() noexcept;
+const_reverse_iterator rend() const noexcept;
+```
+---
+### Member functions:
+```C++
+void clear();
+void reserve(size_t);
+void resize(size_t);
+bool empty() const;
+void shrink_to_fit();
+void swap(vector<T>&);
+
+void push_back(const T&);
+void push_back(T&&);
+template<class ... Args> void emplace_back(Args&& ... args);
+void pop_back();
+size_t max_size() const;
+```
+---
+### private functions:
+```C++
+template<typename T>
+inline void vector<T>::_reallocate(size_t min) //recreates vector to use new capacity
+{
+	const size_t newCap = _exponentCapacity(min);
+	T* temp = new T[newCap];
+	for (size_t i = 0; i < sz; ++i) {
+		temp[i] = elem[i];
+	}
+	delete[] elem;
+	elem = temp;
+	cap = newCap;
+}
+
+template<class T>
+size_t vector<T>::_exponentCapacity(size_t newSize) const {
+	if (capacity() > max_size() - capacity() / 2) {
+		return newSize;
+	}
+
+	const size_t exp = cap * 1.5;
+	if (exp < newSize) {
+		return newSize;
+	}
+
+	return exp;
+}
+```
+---
+## Member functions implementation:
 ### 1. reserve(std::size_t mem)
 ```C++
 ...
@@ -79,7 +182,6 @@ TEST(Modifier, Clear)
 	EXPECT_EQ(0, vec.size());
 }
 ```
-
 ### 3. emplace_back()
 ```C++
 ...
@@ -106,7 +208,6 @@ TEST(Modifier, EmplaceBack)
 	EXPECT_EQ(33, vec[1].b);
 }
 ```
-
 ### 4. push_back()
 ```C++
 ...
@@ -128,8 +229,6 @@ TEST(Modifier, PushBack)
 	EXPECT_EQ(9, vec.at(0));
 }
 ```
-
-
 ### 5. pop_back()
 ```C++
 ...
@@ -153,59 +252,4 @@ TEST(Modifier, PopBack)
 	}
 }
 ```
-
-
-### private functions:
-```C++
-template<typename T>
-inline void vector<T>::_reallocate(size_t min) //recreates vector to use new capacity
-{
-	const size_t newCap = _exponentCapacity(min);
-	T* temp = new T[newCap];
-	for (size_t i = 0; i < sz; ++i) {
-		temp[i] = elem[i];
-	}
-	delete[] elem;
-	elem = temp;
-	cap = newCap;
-}
-
-template<class T>
-size_t vector<T>::_exponentCapacity(size_t newSize) const {
-	if (capacity() > max_size() - capacity() / 2) {
-		return newSize;
-	}
-
-	const size_t exp = cap * 1.5;
-	if (exp < newSize) {
-		return newSize;
-	}
-
-	return exp;
-}
-
-```
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
